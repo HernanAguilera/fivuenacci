@@ -2,6 +2,16 @@
   <div>
       <b-container>
           <b-row>
+              <b-col>
+                <b-alert :show="response=='success'" variant="success" dismissible>
+                    Se ha realizado la búsqueda con éxito
+                </b-alert>
+                <b-alert :show="response=='error'" variant="danger" dismissible>
+                    Se ha producido un error
+                </b-alert>
+              </b-col>
+          </b-row>
+          <b-row>
             <b-col></b-col>
             <b-col>
                 <b-overlay :show="procesando" rounded="sm">
@@ -47,23 +57,26 @@ export default {
             http: http,
             numero: 0,
             result: 0,
-            procesando: false
+            procesando: false,
+            response: null
         }
     },
     methods: {
         calcular: function () {
-            this.show = true;
+            this.procesando = true;
             let that = this;
-            http.get(`${this.numero}`).then(function (res) {
-                console.log('res', res);
+            http.get(`${this.numero}`)
+            .then(function (res) {
+                that.response = 'success';
                 that.result = res.data.result;
-                this.show = false;
             })
-            .catch(function (res) {
-                console.error('res', res);
-                that.result = res.data.result;
-                this.show = false;
-            });
+            .catch(function (error) {
+                that.response = 'error';
+                that.result = 'Error';
+            })
+            .then(function () {
+                that.procesando = false;
+            });;
         }
     }
 }
